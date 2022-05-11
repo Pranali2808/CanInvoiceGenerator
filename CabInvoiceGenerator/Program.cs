@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace CabInvoiceGenerator
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
             Console.WriteLine("Welcome to cab invoice generator");
+            CabInvoGenerator cabInvoiceGenerator = new CabInvoGenerator(RideType.NORMAL);
+            Console.WriteLine(cabInvoiceGenerator.CalculateFare(10, 15));
             Console.ReadLine();
         }
     }
