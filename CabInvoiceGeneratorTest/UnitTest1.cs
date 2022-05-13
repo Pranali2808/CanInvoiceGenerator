@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CabInvoiceGenerator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -36,12 +37,10 @@ namespace CabInvoiceGeneratorTest
         [TestMethod]
         public void GivenMultipleRidesReturnAggregateFare()
         {
-            //Arrange
-            double actual, expected = 320;
             Ride[] cabRides = { new Ride(10, 15), new Ride(10, 15) };
-            //Act
-            actual = generateNormalFare.CalculateAgreegateFare(cabRides);
-            //Assert
+            InvoiceSummary expected = new InvoiceSummary(cabRides.Length, 320);
+            var actual = generateNormalFare.CalculateAgreegateFare(cabRides);
+
             Assert.AreEqual(actual, expected);
         }
 
@@ -52,6 +51,21 @@ namespace CabInvoiceGeneratorTest
             Ride[] cabRides = { };
             var nullRidesException = Assert.ThrowsException<CabInvoGeneratorException>(() => generateNormalFare.CalculateAgreegateFare(cabRides));
             Assert.AreEqual(CabInvoGeneratorException.ExceptionType.NULL_RIDES, nullRidesException.exceptionType);
+        }
+        [TestMethod]
+        [DataRow(1, 2, 320, 10, 15, 10, 15)]
+        public void GivenUserIdReturnInvoiceSummary(int userId, int cabRideCount, double totalFare, int time1, double distance1, int time2, double distance2)
+        {
+            RideRepo rideRepository = new RideRepo();
+            Ride[] userRides = { new Ride(time1, distance1), new Ride(time2, distance2) };
+            rideRepository.AddUserRidesToRepository(userId, userRides, RideType.NORMAL);
+            List<Ride> list = new List<Ride>();
+            list.AddRange(userRides);
+            InvoiceSummary userInvoice = new InvoiceSummary(cabRideCount, totalFare);
+
+            UserCabInvoService expected = new UserCabInvoService(list, userInvoice);
+            UserCabInvoService actual = rideRepository.ReturnInvoicefromRideRepository(userId);
+            Assert.AreEqual(actual.InvoiceSummary.totalFare, expected.InvoiceSummary.totalFare);
         }
     }
 }
